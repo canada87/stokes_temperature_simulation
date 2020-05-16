@@ -15,15 +15,19 @@ P_target = float(st.sidebar.text_input('Power Target', 2.8))
 sigma =  float(st.sidebar.text_input('Sigma', 5))
 mu =  float(st.sidebar.text_input('Mean', 633))
 l_laser = float(st.sidebar.text_input('Laser wavelength', 633))
-scelta = st.sidebar.radio('switch',('on','off'))
+scelta = st.sidebar.radio('switch',('complete','no pump', 'aproximation'))
 
+one = 1
 c = 299792458
 w_laser = c/(l_laser*1e-9)
-if scelta == 'off':
+if scelta == 'no pump':
     w_laser = 0
     st.latex(r'''{I_1} =  \frac{P_1}{{\left(e^{\frac{\hbar c}{k_b T_1} \left(\frac{1}{\lambda} \right)} - 1 \right)}}''')
-elif scelta == 'on':
+elif scelta == 'complete':
     st.latex(r'''{I_1} =  \frac{P_1}{{\left(e^{\frac{\hbar c}{k_b T_1} \left(\frac{1}{\lambda} - \frac{1}{\lambda_{laser}} \right)} - 1 \right)}}''')
+elif scelta == 'aproximation':
+    one = 0
+    st.latex(r'''{I_1} =  \frac{P_1}{{\left(e^{\frac{\hbar c}{k_b T_1} \left(\frac{1}{\lambda} - \frac{1}{\lambda_{laser}} \right)}\right)}}''')
 
 p = figure(title='', x_axis_label='x', y_axis_label='y', tools = TOOLS)
 p2 = figure(title='', x_axis_label='x', y_axis_label='y', tools = TOOLS)
@@ -40,8 +44,8 @@ if T_targets:
             kb = 8.617*1e-5
             w = c/(x*1e-9)
 
-            numeratore   = np.exp((h_bar/(kb*T_ref))   *(w - w_laser)) - 1
-            denominatore = np.exp((h_bar/(kb*T_target))*(w - w_laser)) - 1
+            numeratore   = np.exp((h_bar/(kb*T_ref))   *(w - w_laser)) - one
+            denominatore = np.exp((h_bar/(kb*T_target))*(w - w_laser)) - one
             return P_ratio*numeratore/denominatore
 
         def funzione_PL(x):
@@ -49,7 +53,7 @@ if T_targets:
             kb = 8.617*1e-5
             w = c/(x*1e-9)
 
-            denominatore = np.exp((h_bar/(kb*T_target))*(w - w_laser)) - 1
+            denominatore = np.exp((h_bar/(kb*T_target))*(w - w_laser)) - one
             return P_target/denominatore
 
         def funzione_resonance(x):
@@ -62,16 +66,16 @@ if T_targets:
 
         y_PL_ratio[T_target] = y_PL
 
-        p.scatter(x, y_ration, legend=str(T_target), line_width=2, color = Colorblind[8][j])
+        p.scatter(x, y_ration, legend_label=str(T_target), line_width=1, color = Colorblind[8][j])
         p.line((l_laser,l_laser), (y_ration.min(),y_ration.max()), line_width=0.5, color = 'red')
 
-        p2.scatter(x, y_PL, legend=str(T_target), line_width=2, color = Colorblind[8][j])
+        p2.scatter(x, y_PL, legend_label=str(T_target), line_width=1, color = Colorblind[8][j])
         p2.line((l_laser,l_laser), (y_PL.min(),y_PL.max()), line_width=0.5, color = 'red')
 
-        p3.scatter(x, y_resonance, legend=str(T_target), line_width=2, color = Colorblind[8][j])
+        p3.scatter(x, y_resonance, legend_label=str(T_target), line_width=1, color = Colorblind[8][j])
         p3.line((l_laser,l_laser), (y_resonance.min(),y_resonance.max()), line_width=0.5, color = 'red')
 
-        p4.scatter(x, y_real, legend=str(T_target), line_width=2, color = Colorblind[8][j])
+        p4.scatter(x, y_real, legend_label=str(T_target), line_width=1, color = Colorblind[8][j])
         p4.line((l_laser,l_laser), (y_real.min(),y_real.max()), line_width=0.5, color = 'red')
 
     st.subheader('Ratio')
